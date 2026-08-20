@@ -58,6 +58,9 @@ import com.sumas.wooheso.core.media.VideoPlayer
 import com.sumas.wooheso.data.model.ProductCardModel
 import kotlinx.coroutines.delay
 
+import androidx.compose.runtime.collectAsState
+import com.sumas.wooheso.data.repository.SavedProductRepository
+
 @Composable
 fun ProductFeedCard(
     product: ProductCardModel,
@@ -69,7 +72,8 @@ fun ProductFeedCard(
     modifier: Modifier = Modifier
 ) {
     var isPlaying by remember(isCurrentPage) { mutableStateOf(isCurrentPage) }
-    var isSaved by remember { mutableStateOf(false) }
+    val savedProductIds by SavedProductRepository.savedProductIds.collectAsState()
+    val isSaved = savedProductIds.contains(product.id)
     var saveCount by remember { mutableStateOf(product.saveCount) }
     var showRippleIndicator by remember { mutableStateOf(false) }
 
@@ -183,8 +187,8 @@ fun ProductFeedCard(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable {
-                    isSaved = !isSaved
-                    saveCount += if (isSaved) 1 else -1
+                    val saved = SavedProductRepository.toggleSave(product.id)
+                    saveCount += if (saved) 1 else -1
                 }
             ) {
                 Box(

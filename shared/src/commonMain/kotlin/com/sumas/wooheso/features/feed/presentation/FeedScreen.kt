@@ -45,14 +45,21 @@ import com.sumas.wooheso.data.mock.MockFeedData
 import com.sumas.wooheso.features.feed.presentation.widgets.CategorySelector
 import com.sumas.wooheso.features.feed.presentation.widgets.ProductFeedCard
 
+import com.sumas.wooheso.core.util.rememberShareLauncher
+import com.sumas.wooheso.core.util.rememberUrlLauncher
+import com.sumas.wooheso.data.repository.ConversionTracker
+
 @Composable
 fun FeedScreen(
+    isFeedActive: Boolean = true,
     onNavigateToDetail: (String) -> Unit = {},
     onNavigateToCompany: (String) -> Unit = {},
     onNavigateToRegistration: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember { mutableStateOf("전체") }
+    val urlLauncher = rememberUrlLauncher()
+    val shareLauncher = rememberShareLauncher()
 
     val filteredProducts = remember(selectedCategory) {
         if (selectedCategory == "전체") {
@@ -104,11 +111,19 @@ fun FeedScreen(
                 val product = filteredProducts[pageIndex]
                 ProductFeedCard(
                     product = product,
-                    isCurrentPage = (pageIndex == pagerState.currentPage),
+                    isCurrentPage = isFeedActive && (pageIndex == pagerState.currentPage),
                     onDetailClick = onNavigateToDetail,
                     onCompanyClick = onNavigateToCompany,
-                    onInquiryClick = { /* Will connect in Phase 2 URL launcher */ },
-                    onShareClick = { /* Will connect in Phase 2 Share launcher */ }
+                    onInquiryClick = { prod ->
+                        ConversionTracker.trackInquiryClick(prod.id)
+                        urlLauncher(prod.inquiryUrl ?: "https://pf.kakao.com")
+                    },
+                    onShareClick = { prod ->
+                        shareLauncher(
+                            "[우회소] ${prod.title} 전시 카드를 확인해보세요!\nhttps://wooheso.com/product/${prod.id}",
+                            "[우회소] ${prod.title}"
+                        )
+                    }
                 )
             }
         }

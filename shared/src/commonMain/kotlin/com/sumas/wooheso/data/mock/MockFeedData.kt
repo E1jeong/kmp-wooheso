@@ -71,4 +71,53 @@ object MockFeedData {
             saveCount = 230
         )
     )
+
+    val mockCompanies = listOf(
+        com.sumas.wooheso.data.model.CompanyModel(
+            companyId = "comp-001",
+            ownerUid = "user-001",
+            name = "우회소 스튜디오",
+            tagline = "모듈형 공간 & 전시 부스 전문 기업",
+            category = "모듈형 부스",
+            logoUrl = "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=200&q=80",
+            description = "우회소 스튜디오는 혁신적인 모듈형 전시 부스와 스마트 공간 솔루션을 디자인하고 제작합니다. 빠른 설치, 고품질 마감, 지속 가능한 재활용 구조를 통해 기업의 브랜드 가치를 극대화합니다.",
+            location = "서울특별시 강남구 테헤란로",
+            websiteUrl = "https://wooheso.com",
+            snsLinks = mapOf(
+                "kakao" to "https://pf.kakao.com",
+                "instagram" to "https://instagram.com"
+            ),
+            createdAt = 1700000000000L
+        ),
+        com.sumas.wooheso.data.model.CompanyModel(
+            companyId = "comp-002",
+            ownerUid = "user-002",
+            name = "네오디스플레이",
+            tagline = "전시 & 쇼룸용 인터랙티브 디지털 사이니지 전문",
+            category = "디스플레이",
+            logoUrl = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&q=80",
+            description = "초고화질 4K 터치 키오스크와 실시간 데이터 분석 SDK를 결합하여 전시 방문객에게 몰입감 있는 인터랙티브 경험을 제공합니다.",
+            location = "경기도 성남시 분당구 판교역로",
+            websiteUrl = "https://wooheso.com",
+            snsLinks = mapOf(
+                "kakao" to "https://pf.kakao.com"
+            ),
+            createdAt = 1701000000000L
+        ),
+        com.sumas.wooheso.data.model.CompanyModel(
+            companyId = "comp-003",
+            ownerUid = "user-003",
+            name = "에코스페이스",
+            tagline = "100% 지속 가능한 친환경 페이퍼 모듈 팝업 키트",
+            category = "팝업스토어",
+            logoUrl = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=200&q=80",
+            description = "폐기물 없는 전시 문화를 만들어가는 친환경 팝업 솔루션 기업입니다. 고강도 친환경 허니컴 보드와 수성 잉크로 완성되는 감성 팝업스토어를 제안합니다.",
+            location = "서울특별시 성동구 성수이로",
+            websiteUrl = "https://wooheso.com",
+            snsLinks = mapOf(
+                "kakao" to "https://pf.kakao.com"
+            ),
+            createdAt = 1702000000000L
+        )
+    )
 }
