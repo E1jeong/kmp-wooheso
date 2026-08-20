@@ -67,11 +67,17 @@ actual fun VideoPlayer(
             PlayerView(ctx).apply {
                 player = exoPlayer
                 useController = false
+                resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
+            }
+        },
+        update = { playerView ->
+            if (playerView.player != exoPlayer) {
+                playerView.player = exoPlayer
             }
         },
         modifier = modifier
