@@ -19,6 +19,8 @@ kotlin {
         }
     }
     
+    jvm("desktop")
+    
     android {
        namespace = "com.sumas.wooheso.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -46,6 +48,16 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation(libs.media3.exoplayer)
             implementation(libs.media3.ui)
+            implementation(libs.ktor.client.okhttp)
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -61,6 +73,13 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+
+            // Supabase
+            implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.auth)
+            implementation(libs.supabase.storage)
+            implementation(libs.supabase.realtime)
+            implementation(libs.ktor.client.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

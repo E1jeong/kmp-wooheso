@@ -11,4 +11,13 @@ sealed interface WoohesoRoute {
 
     @Serializable
     data class CompanyProfile(val companyId: String) : WoohesoRoute
+
+    @Serializable
+    data object SavedList : WoohesoRoute
+
+    @Serializable
+    data object CompanyRegistration : WoohesoRoute
+
+    @Serializable
+    data class ProductRegistration(val companyId: String = "") : WoohesoRoute
 }

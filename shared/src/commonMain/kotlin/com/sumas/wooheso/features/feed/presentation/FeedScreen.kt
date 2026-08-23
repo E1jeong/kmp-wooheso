@@ -49,12 +49,15 @@ import com.sumas.wooheso.core.util.rememberShareLauncher
 import com.sumas.wooheso.core.util.rememberUrlLauncher
 import com.sumas.wooheso.data.repository.ConversionTracker
 
+import androidx.compose.material.icons.filled.BookmarkBorder
+
 @Composable
 fun FeedScreen(
     isFeedActive: Boolean = true,
     onNavigateToDetail: (String) -> Unit = {},
     onNavigateToCompany: (String) -> Unit = {},
     onNavigateToRegistration: () -> Unit = {},
+    onNavigateToSaved: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember { mutableStateOf("전체") }
@@ -166,6 +169,25 @@ fun FeedScreen(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
+
+                // Saved Bookmarks Button
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .frostedGlass(shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = onNavigateToSaved) {
+                        Icon(
+                            imageVector = Icons.Filled.BookmarkBorder,
+                            contentDescription = "Saved Showrooms",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 // Search Action Button
                 Box(

@@ -31,5 +31,8 @@ object AppColors {
     val Error = Color(0xFFEF4444)        // Red 500
     val Border = Color(0xFFE2E8F0)       // Slate 200
     val BorderGlass = Color(0x33FFFFFF)  // 20% White border for glassmorphism
+    val GlassBorder = Color(0x33FFFFFF)
     val GlassBg = Color(0x4D000000)      // 30% Black glass
+    val CardBackground = Color(0xFF161F30) // Dark Slate Card
+    val ElectricCyan = Color(0xFF00F2FE) // Cyan Accent
 }
