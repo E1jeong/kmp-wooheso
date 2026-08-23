@@ -8,8 +8,8 @@ import io.github.jan.supabase.storage.Storage
 
 object SupabaseConfig {
     // Configurable Supabase credentials
-    var supabaseUrl: String = "https://your-project.supabase.co"
-    var supabaseAnonKey: String = "your-anon-key"
+    var supabaseUrl: String = "https://cdfymiolrbkfnmdqtojn.supabase.co"
+    var supabaseAnonKey: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZnltaW9scmJrZm5tZHF0b2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0NjYxNTgsImV4cCI6MjEwMzA0MjE1OH0._xyvkmUTBkPtmJNiKOY7zW3sooOyI1Ugyux3Z6PaukM"
 
     val isConfigured: Boolean
         get() = supabaseUrl.startsWith("https://") && !supabaseUrl.contains("your-project")
