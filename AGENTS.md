@@ -4,16 +4,19 @@
 
 This guide is a **navigation aid and safety guard**, not a knowledge archive. For background, architecture rationale, and decision history, read the Obsidian wiki.
 
-- **Wiki SSOT:** `Dev/Project/Personal/wooheso/` (vault `C:\Users\sumas\OneDrive\Desktop\dev\10.obsidian`)
+- **Wiki SSOT:** vault-relative `Dev/Project/Personal/wooheso/`. Resolve the vault through `_meta/routing-tables.md` or `obsidian-wiki-sync`, never a hardcoded file URL.
 - **Session read order:**
-  1. `README.md` (this repo)
-  2. Wiki [`handoff.md`](file:///C:/Users/sumas/OneDrive/Desktop/dev/10.obsidian/Dev/Project/Personal/wooheso/handoff.md) — last session state, next starting point
-  3. Wiki [`issues/needs-verification.md`](file:///C:/Users/sumas/OneDrive/Desktop/dev/10.obsidian/Dev/Project/Personal/wooheso/issues/needs-verification.md) — open questions and unresolved items
+  1. Wiki `README.md`
+  2. Wiki `handoff.md`
+  3. Wiki `schema.md`
+  4. Wiki `index.md`
+- Read wiki `issues/needs-verification.md` when the task touches uncertainty.
+- Before multi-step or resumed implementation, ground the wiki context against live code, propose `step → verify` checkpoints, and confirm them before editing.
 - **Report language:** English for code and commit messages; Korean for user-facing UI strings.
 - **Production repo:** `https://github.com/E1jeong/kmp-wooheso` (`main` branch)
 - **Tech identifier:** `wooheso` / `kmp-wooheso`; display name: 우회소
 
-## Product and Runtime Map
+## Product and Runtime/Pipeline Map
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -50,18 +53,20 @@ This guide is a **navigation aid and safety guard**, not a knowledge archive. Fo
 
 ## Module/Domain Map and First Reads
 
+Unless a full module path is shown, source paths below are relative to `shared/src/commonMain/kotlin/com/sumas/wooheso/`.
+
 | Module | Ownership | First entrypoint | Wiki topic |
 | --- | --- | --- | --- |
-| `shared/` | All business logic, UI, and data | [`App.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/App.kt) | [[technical/kmp-masterplan]] |
-| `shared/.../core/supabase/` | Supabase client singleton, auth | [`SupabaseClientProvider.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/core/supabase/SupabaseClientProvider.kt) | [[data/data-model-draft]] |
-| `shared/.../core/media/` | Video player expect/actual | [`VideoPlayer.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/core/media/VideoPlayer.kt) | [[technical/kmp-masterplan#5.1]] |
-| `shared/.../core/designsystem/` | Theme, colors, glassmorphism | [`Theme.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/core/designsystem/Theme.kt) | [[features/product-brand-exhibition]] |
-| `shared/.../data/` | DTOs, domain models, repositories | [`SupabaseProductRepository.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/data/repository/SupabaseProductRepository.kt) | [[data/data-model-draft]] |
-| `shared/.../features/` | MVI screens (presentation/) | [`FeedScreen.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/features/feed/presentation/FeedScreen.kt) | [[technical/kmp-masterplan#6]] |
-| `shared/.../navigation/` | Type-safe NavHost + routes | [`WoohesoNavHost.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/shared/src/commonMain/kotlin/com/sumas/wooheso/navigation/WoohesoNavHost.kt) | [[technical/kmp-masterplan#3]] |
-| `androidApp/` | Thin shell — `MainActivity` only | [`MainActivity.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/androidApp/src/main/java/com/sumas/wooheso/MainActivity.kt) | — |
-| `desktopApp/` | Thin shell — `Main.kt` only | [`Main.kt`](file:///C:/Users/sumas/OneDrive/Desktop/dev/6.project/kmp-wooheso/desktopApp/src/main/kotlin/com/sumas/wooheso/Main.kt) | — |
-| `iosApp/` | Xcode SwiftUI wrapper (no Gradle module) | `ContentView.swift` | — |
+| `shared/` | All business logic, UI, and data | `shared/src/commonMain/kotlin/com/sumas/wooheso/App.kt` | [[technical/kmp-masterplan]] |
+| `shared/.../core/supabase/` | Supabase client singleton, auth | `core/supabase/SupabaseClientProvider.kt` | [[data/data-model-draft]] |
+| `shared/.../core/media/` | Video player expect/actual | `core/media/VideoPlayer.kt` | [[technical/kmp-masterplan#5.1]] |
+| `shared/.../core/designsystem/` | Theme, colors, glassmorphism | `core/designsystem/Theme.kt` | [[features/product-brand-exhibition]] |
+| `shared/.../data/` | DTOs, domain models, repositories | `data/repository/SupabaseProductRepository.kt` | [[data/data-model-draft]] |
+| `shared/.../features/` | MVI screens (presentation/) | `features/feed/presentation/FeedScreen.kt` | [[technical/kmp-masterplan#6]] |
+| `shared/.../navigation/` | Type-safe NavHost + routes | `navigation/WoohesoNavHost.kt` | [[technical/kmp-masterplan#3]] |
+| `androidApp/` | Thin shell — `MainActivity` only | `androidApp/src/main/kotlin/com/sumas/wooheso/MainActivity.kt` | — |
+| `desktopApp/` | Thin shell — `Main.kt` only | `desktopApp/src/desktopMain/kotlin/com/sumas/wooheso/desktop/Main.kt` | — |
+| `iosApp/` | Xcode SwiftUI wrapper (no Gradle module) | `iosApp/iosApp/ContentView.swift` | — |
 
 ## Task Router
 
@@ -125,19 +130,3 @@ These rules are **non-negotiable**. Do not override, remove, or work around them
 # Full check (lint + tests)
 ./gradlew check
 ```
-
-## Tech Stack Reference
-
-| Area | Technology | Version |
-| --- | --- | --- |
-| Framework | KMP + Compose Multiplatform | Kotlin 2.4.10, CMP 1.11.1 |
-| Navigation | Navigation Compose (Type-Safe) | 2.8.0-alpha10 |
-| State Management | AndroidX ViewModel + MVI | Lifecycle 2.8.4 |
-| Image Loading | Coil 3 Multiplatform | 3.1.0 |
-| Backend & DB | Supabase Kotlin SDK | 3.7.0 |
-| HTTP Client | Ktor | 3.1.1 |
-| Serialization | Kotlinx Serialization JSON | 1.8.0 |
-| Video (Android) | Media3 ExoPlayer | 1.5.1 |
-| Video (iOS) | AVPlayer (native) | — |
-| UI Components | Material3 | 1.11.0-alpha07 |
-| Android | AGP 9.0.1, minSdk 24, targetSdk 36 | — |
