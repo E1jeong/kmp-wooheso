@@ -6,10 +6,9 @@ This guide is a **navigation aid and safety guard**, not a knowledge archive. Fo
 
 - **Wiki SSOT:** vault-relative `Dev/Project/Personal/wooheso/`. Resolve the vault through `_meta/routing-tables.md` or `obsidian-wiki-sync`, never a hardcoded file URL.
 - **Session read order:**
-  1. Wiki `README.md`
-  2. Wiki `handoff.md`
-  3. Wiki `schema.md`
-  4. Wiki `index.md`
+  1. Wiki `handoff.md`
+  2. Wiki `schema.md`
+  3. Wiki `index.md`
 - Read wiki `issues/needs-verification.md` when the task touches uncertainty.
 - Before multi-step or resumed implementation, ground the wiki context against live code, propose `step → verify` checkpoints, and confirm them before editing.
 - **Report language:** English for code and commit messages; Korean for user-facing UI strings.
