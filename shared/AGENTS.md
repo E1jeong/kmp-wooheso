@@ -14,22 +14,18 @@ Shared Compose UI, feature logic, navigation, repositories, domain models, and p
 
 ## Boundary & Architecture Constraints
 
-Keep Supabase access in repositories and map wire DTOs to UI-facing models there. Features communicate through centralized navigation rather than direct feature imports. ViewModels expose state and one-shot effects; composables render state and emit intents. Use `expect`/`actual` for platform APIs.
+Keep Supabase access in repositories and map wire DTOs to UI-facing models there. Features communicate through centralized navigation rather than direct feature imports. ViewModels expose state and one-shot effects; composables render state and emit intents.
 
 ## Change Gates
 
 - Do not call Supabase directly from screens or ViewModels.
 - Do not use Supabase DTOs directly in composables.
-- Do not put business logic, repositories, or ViewModels in platform host modules.
 - Do not introduce feature-to-feature imports; route cross-feature transitions through navigation.
-- Do not replace `expect`/`actual` abstractions with runtime platform checks.
 
 ## Verify
 
 ```powershell
-.\gradlew.bat :shared:test
-.\gradlew.bat assembleDebug
-.\gradlew.bat check
+.\gradlew.bat :shared:desktopTest
 ```
 
-Use `./gradlew` with the same tasks on Linux, WSL, or macOS.
+Use `./gradlew` with the same task on Linux, WSL, or macOS. For Android integration or repository-wide changes, follow the root guide's broader verification.

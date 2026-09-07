@@ -28,7 +28,7 @@ Report plans and results in Korean. Use the `shared/` guide before changing shar
 Run the narrowest relevant command:
 
 ```powershell
-.\gradlew.bat :shared:test
+.\gradlew.bat :shared:desktopTest
 .\gradlew.bat assembleDebug
 .\gradlew.bat check
 ```
