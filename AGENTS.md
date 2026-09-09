@@ -12,7 +12,7 @@ Report plans and results in Korean. Use the `shared/` guide before changing shar
 | --- | --- | --- | --- |
 | `shared/` | Shared Compose UI, feature logic, navigation, repositories, and platform abstractions | `shared/src/commonMain/kotlin/com/sumas/wooheso/` | `shared/AGENTS.md` |
 | `androidApp/` | Android application shell | `androidApp/src/main/` | None |
-| `desktopApp/` | Desktop application shell | `desktopApp/src/desktopMain/` | None |
+| `desktopApp/` | Desktop application shell | `desktopApp/src/desktopMain/` | `desktopApp/AGENTS.md` |
 | `iosApp/` | iOS SwiftUI host application | `iosApp/iosApp/` | None |
 
 ## Change Gates
@@ -32,5 +32,7 @@ Run the narrowest relevant command:
 .\gradlew.bat assembleDebug
 .\gradlew.bat check
 ```
+
+For desktop app execution and packaging rules, see [`desktopApp/AGENTS.md`](file:///C:/Users/Unionbiometrics/Desktop/dev/1.project/kmp-wooheso/desktopApp/AGENTS.md).
 
 Use `./gradlew` with the same tasks on Linux, WSL, or macOS.
