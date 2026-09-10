@@ -33,6 +33,6 @@ Run the narrowest relevant command:
 .\gradlew.bat check
 ```
 
-For desktop app execution and packaging rules, see [`desktopApp/AGENTS.md`](file:///C:/Users/Unionbiometrics/Desktop/dev/1.project/kmp-wooheso/desktopApp/AGENTS.md).
+For desktop app execution and packaging rules, see [`desktopApp/AGENTS.md`](desktopApp/AGENTS.md).
 
 Use `./gradlew` with the same tasks on Linux, WSL, or macOS.

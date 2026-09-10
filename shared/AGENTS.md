@@ -14,7 +14,7 @@ Shared Compose UI, feature logic, navigation, repositories, domain models, and p
 
 ## Boundary & Architecture Constraints
 
-Keep Supabase access in repositories and map wire DTOs to UI-facing models there. Features communicate through centralized navigation rather than direct feature imports. ViewModels expose state and one-shot effects; composables render state and emit intents.
+Keep Supabase access in repositories and map wire DTOs to UI-facing models there. Features communicate through centralized navigation rather than direct feature imports. State is driven by repositories or ViewModels; composables render state and emit intents.
 
 ## Change Gates
 
