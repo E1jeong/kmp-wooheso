@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            App(googleWebClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID)
         }
     }
 }

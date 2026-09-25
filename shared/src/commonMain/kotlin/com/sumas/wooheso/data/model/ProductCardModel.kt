@@ -11,6 +11,7 @@ data class ProductCardModel(
     val companyName: String,
     val title: String,
     val description: String,
+    val fullDescription: String = description,
     val imageUrls: List<String>,
     val videoUrl: String? = null,
     val category: String,

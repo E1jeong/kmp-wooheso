@@ -22,7 +22,7 @@ class SupabaseStorageRepository {
             val bucket = client.storage.from("product-media")
             val path = "$companyId/$productId/$fileName"
             bucket.upload(path, bytes) {
-                upsert = true
+                upsert = false
             }
             val publicUrl = bucket.publicUrl(path)
             Result.success(publicUrl)
@@ -50,6 +50,14 @@ class SupabaseStorageRepository {
             Result.success(publicUrl)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun deleteProductMedia(companyId: String, productId: String, fileNames: List<String>) {
+        if (SupabaseConfig.isConfigured && fileNames.isNotEmpty()) {
+            client.storage.from("product-media").delete(
+                *fileNames.map { "$companyId/$productId/$it" }.toTypedArray()
+            )
         }
     }
 }

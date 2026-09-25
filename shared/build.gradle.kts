@@ -49,6 +49,10 @@ kotlin {
             implementation(libs.media3.exoplayer)
             implementation(libs.media3.ui)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services)
+            implementation(libs.googleid)
+            implementation(libs.androidx.activity.compose)
         }
         val desktopMain by getting {
             dependencies {

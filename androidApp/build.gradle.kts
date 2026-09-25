@@ -30,6 +30,11 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    val googleWebClientId = providers.gradleProperty("woohesoGoogleWebClientId").orElse("").get()
+    val quotedGoogleWebClientId = "\"${googleWebClientId.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+    buildTypes.configureEach {
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", quotedGoogleWebClientId)
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -50,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     lint {
         abortOnError = false

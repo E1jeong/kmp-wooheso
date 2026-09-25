@@ -2,6 +2,10 @@ package com.sumas.wooheso
 
 import com.sumas.wooheso.data.mock.MockFeedData
 import com.sumas.wooheso.data.model.PriceType
+import com.sumas.wooheso.data.model.supabase.ProductDto
+import com.sumas.wooheso.data.model.supabase.CompanyDto
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import com.sumas.wooheso.data.repository.ConversionTracker
 import com.sumas.wooheso.data.repository.SavedProductRepository
 import kotlin.test.Test
@@ -60,5 +64,22 @@ class SharedCommonTest {
         val count2 = ConversionTracker.trackInquiryClick(testProductId)
         assertEquals(2L, count2)
         assertEquals(2L, ConversionTracker.getInquiryClickCount(testProductId))
+    }
+
+    @Test
+    fun productDescriptionSurvivesDatabaseMapping() {
+        val product = MockFeedData.mockProducts.first().copy(
+            description = "짧은 소개",
+            fullDescription = "상세 설명"
+        )
+        val roundTrip = ProductDto.fromDomain(product).toDomain(product.companyName)
+        assertEquals("짧은 소개", roundTrip.description)
+        assertEquals("상세 설명", roundTrip.fullDescription)
+    }
+
+    @Test
+    fun companyInsertLeavesDatabaseGeneratedIdOut() {
+        val dto = CompanyDto.fromDomain(MockFeedData.mockCompanies.first().copy(companyId = ""))
+        assertFalse(Json.encodeToString(dto).contains("\"id\""))
     }
 }

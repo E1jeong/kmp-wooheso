@@ -69,12 +69,12 @@ fun ProductFeedCard(
     onCompanyClick: (String) -> Unit = {},
     onInquiryClick: (ProductCardModel) -> Unit = {},
     onShareClick: (ProductCardModel) -> Unit = {},
+    onSaveClick: (ProductCardModel) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var isPlaying by remember(isCurrentPage) { mutableStateOf(isCurrentPage) }
     val savedProductIds by SavedProductRepository.savedProductIds.collectAsState()
     val isSaved = savedProductIds.contains(product.id)
-    var saveCount by remember { mutableStateOf(product.saveCount) }
     var showRippleIndicator by remember { mutableStateOf(false) }
 
     LaunchedEffect(isCurrentPage) {
@@ -187,8 +187,7 @@ fun ProductFeedCard(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable {
-                    val saved = SavedProductRepository.toggleSave(product.id)
-                    saveCount += if (saved) 1 else -1
+                    onSaveClick(product)
                 }
             ) {
                 Box(
@@ -205,13 +204,6 @@ fun ProductFeedCard(
                         modifier = Modifier.size(26.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = "$saveCount",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
 
             // Share

@@ -14,6 +14,7 @@ Report plans and results in Korean. Use the `shared/` guide before changing shar
 | `androidApp/` | Android application shell | `androidApp/src/main/` | None |
 | `desktopApp/` | Desktop application shell | `desktopApp/src/desktopMain/` | `desktopApp/AGENTS.md` |
 | `iosApp/` | iOS SwiftUI host application | `iosApp/iosApp/` | None |
+| `supabase/` | Reviewed database migrations | `supabase/migrations/` | None |
 
 ## Change Gates
 

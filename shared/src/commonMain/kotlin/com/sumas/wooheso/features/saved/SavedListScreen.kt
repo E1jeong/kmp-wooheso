@@ -32,10 +32,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,15 +53,18 @@ import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.data.model.ProductCardModel
 import com.sumas.wooheso.data.repository.SavedProductRepository
 import com.sumas.wooheso.data.repository.SupabaseProductRepository
+import com.sumas.wooheso.data.repository.ShowroomRepositories
 
 @Composable
 fun SavedListScreen(
     onNavigateBack: () -> Unit,
     onNavigateToProductDetail: (productId: String) -> Unit,
     modifier: Modifier = Modifier,
-    productRepository: SupabaseProductRepository = remember { SupabaseProductRepository() }
+    productRepository: SupabaseProductRepository = ShowroomRepositories.products
 ) {
     val savedIds by SavedProductRepository.savedProductIds.collectAsState()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val allProducts by productRepository.products.collectAsState()
 
     val savedProducts = remember(savedIds, allProducts) {
@@ -66,6 +73,7 @@ fun SavedListScreen(
 
     Scaffold(
         containerColor = AppColors.DarkBackground,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             Row(
                 modifier = Modifier
@@ -149,7 +157,15 @@ fun SavedListScreen(
                     SavedProductCard(
                         product = product,
                         onClick = { onNavigateToProductDetail(product.id) },
-                        onToggleSave = { SavedProductRepository.toggleSave(product.id) }
+                        onToggleSave = {
+                            scope.launch {
+                                try {
+                                    SavedProductRepository.toggleSavePersisted(product.id)
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar(e.message ?: "저장을 변경하지 못했습니다.")
+                                }
+                            }
+                        }
                     )
                 }
             }

@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.sp
 import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.data.model.CompanyModel
 import com.sumas.wooheso.data.repository.SupabaseCompanyRepository
+import com.sumas.wooheso.core.supabase.SupabaseClientProvider
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.launch
 
 private val CATEGORIES = listOf(
@@ -119,10 +121,15 @@ fun CompanyRegistrationScreen(
                         isLoading = true
                         errorMessage = null
                         coroutineScope.launch {
-                            val newCompanyId = "comp_${name.hashCode().toString().takeLast(6)}"
+                            val userId = SupabaseClientProvider.client.auth.currentUserOrNull()?.id
+                            if (userId == null) {
+                                isLoading = false
+                                errorMessage = "로그인이 필요합니다."
+                                return@launch
+                            }
                             val newCompany = CompanyModel(
-                                companyId = newCompanyId,
-                                ownerUid = "current_user",
+                                companyId = "",
+                                ownerUid = userId,
                                 name = name.trim(),
                                 tagline = tagline.trim(),
                                 category = selectedCategory,

@@ -38,6 +38,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +53,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.core.util.rememberUrlLauncher
-import com.sumas.wooheso.data.mock.MockFeedData
+import com.sumas.wooheso.data.model.CompanyModel
+import com.sumas.wooheso.data.model.ProductCardModel
+import com.sumas.wooheso.data.repository.ShowroomRepositories
 
 @Composable
 fun CompanyProfileScreen(
@@ -58,14 +64,20 @@ fun CompanyProfileScreen(
     onNavigateToProductDetail: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val company = remember(companyId) {
-        MockFeedData.mockCompanies.find { it.companyId == companyId }
-            ?: MockFeedData.mockCompanies.first()
+    var loadedCompany by remember(companyId) { mutableStateOf<CompanyModel?>(null) }
+    var companyProducts by remember(companyId) { mutableStateOf<List<ProductCardModel>>(emptyList()) }
+    var loaded by remember(companyId) { mutableStateOf(false) }
+    LaunchedEffect(companyId) {
+        loadedCompany = ShowroomRepositories.companies.getCompanyById(companyId)
+        companyProducts = ShowroomRepositories.products.getProductsByCompany(companyId)
+        loaded = true
     }
-
-    val companyProducts = remember(companyId) {
-        val filtered = MockFeedData.mockProducts.filter { it.companyId == companyId }
-        if (filtered.isEmpty()) MockFeedData.mockProducts else filtered
+    val company = loadedCompany
+    if (company == null) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(if (loaded) "회사를 찾을 수 없습니다." else "회사를 불러오는 중입니다.", color = AppColors.TextPrimary)
+        }
+        return
     }
 
     val urlLauncher = rememberUrlLauncher()

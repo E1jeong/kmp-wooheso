@@ -58,9 +58,12 @@ import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.core.designsystem.frostedGlass
 import com.sumas.wooheso.core.util.rememberShareLauncher
 import com.sumas.wooheso.core.util.rememberUrlLauncher
-import com.sumas.wooheso.data.mock.MockFeedData
-import com.sumas.wooheso.data.repository.ConversionTracker
 import com.sumas.wooheso.data.repository.SavedProductRepository
+import com.sumas.wooheso.data.repository.ShowroomRepositories
+import com.sumas.wooheso.data.model.ProductCardModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 
 @Composable
@@ -68,11 +71,21 @@ fun ProductDetailScreen(
     productId: String,
     onNavigateBack: () -> Unit,
     onNavigateToCompany: (String) -> Unit,
+    onSaveRequest: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val product = remember(productId) {
-        MockFeedData.mockProducts.find { it.id == productId }
-            ?: MockFeedData.mockProducts.first()
+    var loadedProduct by remember(productId) { mutableStateOf<ProductCardModel?>(null) }
+    var loaded by remember(productId) { mutableStateOf(false) }
+    LaunchedEffect(productId) {
+        loadedProduct = ShowroomRepositories.products.getProductById(productId)
+        loaded = true
+    }
+    val product = loadedProduct
+    if (product == null) {
+        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(if (loaded) "상품을 찾을 수 없습니다." else "상품을 불러오는 중입니다.", color = AppColors.TextPrimary)
+        }
+        return
     }
 
     val savedProductIds by SavedProductRepository.savedProductIds.collectAsState()
@@ -149,7 +162,7 @@ fun ProductDetailScreen(
                 ) {
                     IconButton(
                         onClick = {
-                            SavedProductRepository.toggleSave(product.id)
+                            onSaveRequest(product.id)
                         }
                     ) {
                         Icon(
@@ -164,12 +177,19 @@ fun ProductDetailScreen(
 
                     Button(
                         onClick = {
-                            ConversionTracker.trackInquiryClick(product.id)
-                            val targetUrl = product.inquiryUrl ?: "https://pf.kakao.com"
-                            val launched = urlLauncher(targetUrl)
+                            val targetUrl = product.inquiryUrl?.takeIf { it.startsWith("https://") }
+                            val launched = targetUrl != null && urlLauncher(targetUrl)
                             if (!launched) {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("문의 링크를 열 수 없습니다.")
+                                }
+                            } else {
+                                scope.launch {
+                                    try {
+                                        ShowroomRepositories.products.incrementInquiryClick(product.id)
+                                    } catch (e: Exception) {
+                                        snackbarHostState.showSnackbar("문의 기록을 저장하지 못했습니다.")
+                                    }
                                 }
                             }
                         },
@@ -360,7 +380,7 @@ fun ProductDetailScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = product.description,
+                    text = product.fullDescription,
                     color = AppColors.TextWhiteDim,
                     fontSize = 14.sp,
                     lineHeight = 22.sp

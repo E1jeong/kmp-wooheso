@@ -26,6 +26,9 @@ import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,13 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.core.designsystem.frostedGlass
-import com.sumas.wooheso.data.mock.MockFeedData
 import com.sumas.wooheso.features.feed.presentation.widgets.CategorySelector
 import com.sumas.wooheso.features.feed.presentation.widgets.ProductFeedCard
 
 import com.sumas.wooheso.core.util.rememberShareLauncher
 import com.sumas.wooheso.core.util.rememberUrlLauncher
-import com.sumas.wooheso.data.repository.ConversionTracker
+import com.sumas.wooheso.data.repository.ShowroomRepositories
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 import androidx.compose.material.icons.filled.BookmarkBorder
 
@@ -58,17 +63,31 @@ fun FeedScreen(
     onNavigateToCompany: (String) -> Unit = {},
     onNavigateToRegistration: () -> Unit = {},
     onNavigateToSaved: () -> Unit = {},
+    onSaveRequest: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var selectedCategory by remember { mutableStateOf("전체") }
     val urlLauncher = rememberUrlLauncher()
     val shareLauncher = rememberShareLauncher()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val products by ShowroomRepositories.products.products.collectAsState()
+    var loadError by remember { mutableStateOf<String?>(null) }
 
-    val filteredProducts = remember(selectedCategory) {
+    LaunchedEffect(Unit) {
+        try {
+            ShowroomRepositories.products.fetchProducts()
+            loadError = null
+        } catch (e: Exception) {
+            loadError = "전시 상품을 불러오지 못했습니다. 다시 시도해 주세요."
+        }
+    }
+
+    val filteredProducts = remember(selectedCategory, products) {
         if (selectedCategory == "전체") {
-            MockFeedData.mockProducts
+            products
         } else {
-            MockFeedData.mockProducts.filter { it.category == selectedCategory }
+            products.filter { it.category == selectedCategory }
         }
     }
 
@@ -99,6 +118,15 @@ fun FeedScreen(
                     modifier = Modifier.size(56.dp)
                 )
                 Spacer(modifier = Modifier.height(14.dp))
+                if (loadError != null) Text(loadError!!, color = Color.White)
+                if (loadError != null) TextButton(onClick = {
+                    scope.launch {
+                        try {
+                            ShowroomRepositories.products.fetchProducts()
+                            loadError = null
+                        } catch (_: Exception) { }
+                    }
+                }) { Text("다시 시도") }
                 Text(
                     text = "해당 카테고리의 전시 쇼츠 카드가 없습니다.",
                     color = Color.White.copy(alpha = 0.7f),
@@ -118,18 +146,30 @@ fun FeedScreen(
                     onDetailClick = onNavigateToDetail,
                     onCompanyClick = onNavigateToCompany,
                     onInquiryClick = { prod ->
-                        ConversionTracker.trackInquiryClick(prod.id)
-                        urlLauncher(prod.inquiryUrl ?: "https://pf.kakao.com")
+                        val targetUrl = prod.inquiryUrl?.takeIf { it.startsWith("https://") }
+                        if (targetUrl == null || !urlLauncher(targetUrl)) {
+                            scope.launch { snackbarHostState.showSnackbar("문의 링크를 열 수 없습니다.") }
+                        } else {
+                            scope.launch {
+                                try {
+                                    ShowroomRepositories.products.incrementInquiryClick(prod.id)
+                                } catch (e: Exception) {
+                                    snackbarHostState.showSnackbar("문의 기록을 저장하지 못했습니다.")
+                                }
+                            }
+                        }
                     },
                     onShareClick = { prod ->
                         shareLauncher(
                             "[우회소] ${prod.title} 전시 카드를 확인해보세요!\nhttps://wooheso.com/product/${prod.id}",
                             "[우회소] ${prod.title}"
                         )
-                    }
+                    },
+                    onSaveClick = { prod -> onSaveRequest(prod.id) }
                 )
             }
         }
+        SnackbarHost(snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
 
         // 2. Floating Top Frosted Header Layer (Wordmark + Actions + Category Selector)
         Column(

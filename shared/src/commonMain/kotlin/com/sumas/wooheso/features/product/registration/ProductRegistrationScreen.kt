@@ -52,13 +52,21 @@ import com.sumas.wooheso.core.designsystem.AppColors
 import com.sumas.wooheso.data.model.PriceType
 import com.sumas.wooheso.data.model.ProductCardModel
 import com.sumas.wooheso.data.repository.SupabaseProductRepository
+import com.sumas.wooheso.data.repository.SupabaseStorageRepository
+import com.sumas.wooheso.data.repository.ShowroomRepositories
+import com.sumas.wooheso.core.media.SelectedImage
+import com.sumas.wooheso.core.media.SelectedVideo
+import com.sumas.wooheso.core.media.rememberImagePicker
+import com.sumas.wooheso.core.media.rememberVideoPicker
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 
 private val PRODUCT_CATEGORIES = listOf(
     "AI/Tech", "Hardware", "SaaS", "Creative", "Lifestyle", "Industrial"
 )
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalUuidApi::class)
 @Composable
 fun ProductRegistrationScreen(
     companyId: String,
@@ -69,6 +77,9 @@ fun ProductRegistrationScreen(
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val pickImages = rememberImagePicker()
+    val pickVideo = rememberVideoPicker()
+    val storageRepository = remember { SupabaseStorageRepository() }
 
     var title by remember { mutableStateOf("") }
     var shortDescription by remember { mutableStateOf("") }
@@ -81,13 +92,18 @@ fun ProductRegistrationScreen(
     var feature3 by remember { mutableStateOf("") }
     var inquiryUrl by remember { mutableStateOf("") }
     var videoUrl by remember { mutableStateOf("") }
+    var selectedImages by remember { mutableStateOf<List<SelectedImage>>(emptyList()) }
+    var selectedVideo by remember { mutableStateOf<SelectedVideo?>(null) }
 
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val isFormValid = title.isNotBlank() &&
             shortDescription.isNotBlank() &&
-            inquiryUrl.isNotBlank() &&
+            fullDescription.isNotBlank() &&
+            selectedImages.isNotEmpty() &&
+            inquiryUrl.trim().startsWith("https://") &&
+            (selectedVideo != null || videoUrl.isBlank() || videoUrl.trim().startsWith("https://")) &&
             (priceType == PriceType.INQUIRY || priceText.toLongOrNull() != null)
 
     Scaffold(
@@ -129,16 +145,46 @@ fun ProductRegistrationScreen(
                         isLoading = true
                         errorMessage = null
                         coroutineScope.launch {
-                            val newId = "prod_${title.hashCode().toString().takeLast(6)}"
                             val keyFeatures = listOf(feature1, feature2, feature3).filter { it.isNotBlank() }
+                            val companyName = ShowroomRepositories.companies.getCompanyById(companyId)?.name.orEmpty()
+                            val productId = Uuid.random().toString()
+                            val imageUrls = mutableListOf<String>()
+                            val uploadedNames = mutableListOf<String>()
+                            for (image in selectedImages) {
+                                val uploaded = storageRepository.uploadProductMedia(
+                                    companyId, productId, image.fileName, image.bytes
+                                )
+                                if (uploaded.isFailure) {
+                                    try { storageRepository.deleteProductMedia(companyId, productId, uploadedNames) } catch (_: Exception) { }
+                                    isLoading = false
+                                    errorMessage = uploaded.exceptionOrNull()?.message ?: "이미지 업로드에 실패했습니다."
+                                    return@launch
+                                }
+                                imageUrls += uploaded.getOrThrow()
+                                uploadedNames += image.fileName
+                            }
+                            val uploadedVideoUrl = selectedVideo?.let { video ->
+                                val uploaded = storageRepository.uploadProductMedia(
+                                    companyId, productId, video.fileName, video.bytes
+                                )
+                                if (uploaded.isFailure) {
+                                    try { storageRepository.deleteProductMedia(companyId, productId, uploadedNames) } catch (_: Exception) { }
+                                    isLoading = false
+                                    errorMessage = uploaded.exceptionOrNull()?.message ?: "동영상 업로드에 실패했습니다."
+                                    return@launch
+                                }
+                                uploadedNames += video.fileName
+                                uploaded.getOrThrow()
+                            }
                             val newProduct = ProductCardModel(
-                                id = newId,
-                                companyId = companyId.ifBlank { "company_1" },
-                                companyName = "우회소 파트너",
+                                id = productId,
+                                companyId = companyId,
+                                companyName = companyName,
                                 title = title.trim(),
                                 description = shortDescription.trim(),
-                                imageUrls = listOf("https://images.unsplash.com/photo-1518770660439-4636190af475"),
-                                videoUrl = videoUrl.trim().ifBlank { null },
+                                fullDescription = fullDescription.trim(),
+                                imageUrls = imageUrls,
+                                videoUrl = uploadedVideoUrl ?: videoUrl.trim().ifBlank { null },
                                 category = selectedCategory,
                                 keyFeatures = if (keyFeatures.isEmpty()) listOf("핵심 기능 소개 1", "핵심 기능 소개 2", "핵심 기능 소개 3") else keyFeatures,
                                 priceType = priceType,
@@ -150,6 +196,7 @@ fun ProductRegistrationScreen(
                             result.onSuccess {
                                 onRegistrationSuccess(it.id)
                             }.onFailure {
+                                try { storageRepository.deleteProductMedia(companyId, productId, uploadedNames) } catch (_: Exception) { }
                                 errorMessage = it.message ?: "제품 등록에 실패했습니다."
                             }
                         }
@@ -238,6 +285,18 @@ fun ProductRegistrationScreen(
                 colors = outlinedFieldColors()
             )
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Text("상세 설명 *", color = AppColors.TextPrimary, fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = fullDescription,
+                onValueChange = { fullDescription = it },
+                minLines = 3,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = outlinedFieldColors()
+            )
             Spacer(modifier = Modifier.height(18.dp))
 
             // Category Selection
@@ -432,6 +491,28 @@ fun ProductRegistrationScreen(
                 shape = RoundedCornerShape(10.dp),
                 colors = outlinedFieldColors()
             )
+
+            Button(onClick = {
+                coroutineScope.launch {
+                    try {
+                        selectedImages = pickImages()
+                        if (selectedImages.isEmpty()) errorMessage = "JPG, PNG 또는 WebP 이미지 1~5개를 선택해 주세요 (각 10MB 이하)."
+                    } catch (e: Exception) {
+                        errorMessage = e.message ?: "이미지를 선택하지 못했습니다."
+                    }
+                }
+            }) { Text("이미지 선택 (${selectedImages.size}/5)") }
+
+            Button(onClick = {
+                coroutineScope.launch {
+                    try {
+                        selectedVideo = pickVideo()
+                        if (selectedVideo != null) videoUrl = ""
+                    } catch (e: Exception) {
+                        errorMessage = e.message ?: "동영상을 선택하지 못했습니다."
+                    }
+                }
+            }) { Text(if (selectedVideo == null) "동영상 선택 (선택, MP4 30초/30MB 이하)" else "동영상 선택됨") }
 
             if (errorMessage != null) {
                 Spacer(modifier = Modifier.height(12.dp))

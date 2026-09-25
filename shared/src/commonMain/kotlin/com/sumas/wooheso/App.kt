@@ -5,8 +5,8 @@ import com.sumas.wooheso.core.designsystem.WoohesoTheme
 import com.sumas.wooheso.navigation.WoohesoNavHost
 
 @Composable
-fun App() {
+fun App(googleWebClientId: String = "") {
     WoohesoTheme(darkTheme = true) {
-        WoohesoNavHost()
+        WoohesoNavHost(googleWebClientId = googleWebClientId)
     }
 }
