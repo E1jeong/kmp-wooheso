@@ -4,7 +4,7 @@
 
 This is a code-navigation and safety guide, not project history. Product context, planning, data-model detail, and decisions live in the vault-relative `Dev/Project/Personal/wooheso` wiki; resolve it through `_meta/routing-tables.md` or `obsidian-wiki-sync`, then follow the vault root `AGENTS.md`.
 
-Report plans and results in Korean. Use the `shared/` guide before changing shared code.
+Use the `shared/` guide before changing shared code.
 
 ## Code Map
 
