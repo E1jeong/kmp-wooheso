@@ -18,7 +18,7 @@ Houses desktop window lifecycle and showroom preview runtime; business logic and
 ## Change Gates
 
 - **Non-Disruptive Validation**: Routine AI verification uses background compile, test, and packaging commands only. Do not launch the Desktop app, open or focus an Orca terminal, capture the visible desktop, or manipulate windows unless the user explicitly asks to see or interact with the running UI. If background screenshot capture is unavailable, report that visual verification was not performed instead of opening a visible window.
-- **Explicit Desktop Run**: The AI agent's subprocess shell runs in an isolated virtual desktop (`exebox`), so GUI windows it starts never reach the user's monitor. When the user explicitly asks to run, see, or debug the Desktop app, launch it through a focused Orca terminal:
+- **Explicit Desktop Run**: When the user explicitly asks to run, see, or debug the Desktop app, launch it through a focused Orca terminal:
   ```powershell
   orca terminal create --worktree active --title "Wooheso App" --command ".\gradlew.bat :desktopApp:run" --focus
   ```
