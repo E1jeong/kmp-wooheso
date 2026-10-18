@@ -5,8 +5,6 @@
 Wooheso (우회소) Compose Multiplatform desktop host application module (Windows, macOS, Linux).
 Houses desktop window lifecycle and showroom preview runtime; business logic and common UI reside in `shared/`.
 
-Report plans and results in Korean.
-
 ## Orient First
 
 - Entrypoint: `desktopApp/src/desktopMain/kotlin/com/sumas/wooheso/desktop/Main.kt`
@@ -19,11 +17,12 @@ Report plans and results in Korean.
 
 ## Change Gates
 
-- **AI Execution Gate**: The AI agent's subprocess shell runs in an isolated virtual desktop (`exebox`), which prevents GUI windows from appearing on the user's monitor. When launching the desktop app for the user, agents **must use the Orca CLI** to open a focused terminal tab:
+- **Non-Disruptive Validation**: Routine AI verification uses background compile, test, and packaging commands only. Do not launch the Desktop app, open or focus an Orca terminal, capture the visible desktop, or manipulate windows unless the user explicitly asks to see or interact with the running UI. If background screenshot capture is unavailable, report that visual verification was not performed instead of opening a visible window.
+- **Explicit Desktop Run**: The AI agent's subprocess shell runs in an isolated virtual desktop (`exebox`), so GUI windows it starts never reach the user's monitor. When the user explicitly asks to run, see, or debug the Desktop app, launch it through a focused Orca terminal:
   ```powershell
-  orca terminal create --title "Wooheso App" --command ".\gradlew.bat :desktopApp:run" --focus
+  orca terminal create --worktree active --title "Wooheso App" --command ".\gradlew.bat :desktopApp:run" --focus
   ```
-- **User Execution**: Instruct the user to use Android Studio's `desktopApp` run configuration (Run ▶) or execute `.\gradlew.bat :desktopApp:run` directly in their terminal.
+- **User Execution**: Only when the user will run the app themselves, instruct them to use Android Studio's `desktopApp` run configuration (Run ▶) or execute `.\gradlew.bat :desktopApp:run` directly in their terminal.
 
 ## Verify
 
